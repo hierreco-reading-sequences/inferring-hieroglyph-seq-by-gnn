@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+build/
+dist/
+
+# Local environments
+.venv/
+venv/
+.env
+
+# Generated experiment artifacts
+cache/
+runs/
+.cache/
+exports/
+visualizations/
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.log
+
+# OS/editor noise
+.DS_Store
+._*
+*~
+.vscode/
+.idea/
+.ipynb_checkpoints/
+*.swp
+*.swo
+*.tmp

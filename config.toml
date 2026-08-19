@@ -1,0 +1,6 @@
+[paths]
+# Paths are resolved relative to this file unless they are absolute.
+dataset_root = "json_data"
+cache_dir = "cache"
+runs_root = "runs"
+matplotlib_config_dir = ".cache/matplotlib"

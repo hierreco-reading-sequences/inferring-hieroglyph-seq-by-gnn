@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hierreco-nn"
+version = "0.1.0"
+description = "Neural candidate-edge reconstruction tools for Hierreco samples."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24",
+    "pillow>=10",
+    "scipy>=1.11",
+    "torch>=2.0",
+    "torch-geometric>=2.4",
+]
+
+[project.optional-dependencies]
+visualization = [
+    "matplotlib>=3.7",
+    "plotly>=5",
+]
+dev = [
+    "build>=1.2",
+    "pytest>=8",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+hierreco-compute-stats = "hierreco_nn.cli.compute_dataset_stats:main"
+hierreco-export-edge-errors = "hierreco_nn.cli.export_candidate_edge_errors:main"
+hierreco-export-graphs = "hierreco_nn.cli.export_evaluated_graph_jsons:main"
+hierreco-graphml2samples = "hierreco_nn.cli.graphml2samples:main"
+hierreco-shapley = "hierreco_nn.explainability.shapley:main"
+hierreco-train = "hierreco_nn.training:main"
+hierreco-visualize-dataset = "hierreco_nn.cli.visualize_dataset:main"
+hierreco-visualize-evaluated = "hierreco_nn.cli.visualize_evaluated_graph_jsons:main"
+hierreco-visualize-run = "hierreco_nn.cli.visualize_run_predictions:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["hierreco_nn*"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = [
+    "E501",
+]
