@@ -145,6 +145,9 @@ fields, and optional Zernike moment magnitudes.
 Additional JSON samples are generated from GraphML components with
 `hierreco-graphml2samples`.
 
+Each GraphML component must carry its orientation metadata on exactly one node:
+`seq_type`, `legs_point_to`, and `head_faces`.
+
 ```bash
 ./.venv/bin/hierreco-graphml2samples \
   path/to/component_or_graphml \

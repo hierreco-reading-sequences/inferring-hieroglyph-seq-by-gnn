@@ -44,9 +44,9 @@ def sorted_node_ids(node_ids):
     return sorted(node_ids, key=key)
 
 
-def transform_point(x, y, position_type, reading_direction):
+def transform_point(x, y, legs_point_to, head_faces):
     """Normalize orientation using the requested flip/rotation rules."""
-    transform = (position_type, reading_direction)
+    transform = (legs_point_to, head_faces)
 
     if transform == ("down", "right"):
         return x, y
@@ -68,18 +68,18 @@ def transform_point(x, y, position_type, reading_direction):
         return -y, x
 
     raise ValueError(
-        "Unsupported position_type/reading_direction combination: "
-        f"{position_type!r}/{reading_direction!r}"
+        "Unsupported legs_point_to/head_faces combination: "
+        f"{legs_point_to!r}/{head_faces!r}"
     )
 
 
-def transform_bbox(bbox, position_type, reading_direction, origin_x, origin_y):
+def transform_bbox(bbox, legs_point_to, head_faces, origin_x, origin_y):
     min_x = float(bbox["bbox_x"])
     min_y = float(bbox["bbox_y"])
     max_x = min_x + float(bbox["bbox_width"])
     max_y = min_y + float(bbox["bbox_height"])
     corners = [
-        transform_point(x, y, position_type, reading_direction)
+        transform_point(x, y, legs_point_to, head_faces)
         for x, y in (
             (min_x, min_y),
             (max_x, min_y),
@@ -102,8 +102,8 @@ def transform_bbox(bbox, position_type, reading_direction, origin_x, origin_y):
     }
 
 
-def reverse_reading_direction(reading_direction):
-    """Return the opposite reading direction before coordinate normalization."""
+def reverse_head_faces(head_faces):
+    """Return the direction opposite the head before coordinate normalization."""
     opposites = {
         "right": "left",
         "left": "right",
@@ -112,11 +112,9 @@ def reverse_reading_direction(reading_direction):
     }
 
     try:
-        return opposites[reading_direction]
+        return opposites[head_faces]
     except KeyError as error:
-        raise ValueError(
-            f"Unsupported reading_direction: {reading_direction!r}"
-        ) from error
+        raise ValueError(f"Unsupported head_faces: {head_faces!r}") from error
 
 
 def resolve_graphml_path(graphml_path):
@@ -386,14 +384,14 @@ def component_orientation(component_nodes, node_attrs):
         for node_id in component_nodes
         if all(
             key in node_attrs[node_id]
-            for key in ("seq_type", "position_type", "reading_direction")
+            for key in ("seq_type", "legs_point_to", "head_faces")
         )
     ]
 
     if len(orientation_nodes) != 1:
         raise ValueError(
             "Each connected component must contain exactly one node with "
-            "seq_type, position_type and reading_direction. "
+            "seq_type, legs_point_to and head_faces. "
             f"Found {len(orientation_nodes)} in component {component_nodes}."
         )
 
@@ -403,7 +401,7 @@ def component_orientation(component_nodes, node_attrs):
     if graph_type not in ("row", "col"):
         raise ValueError(f"Unsupported seq_type: {graph_type!r}")
 
-    return graph_type, attrs["position_type"], attrs["reading_direction"]
+    return graph_type, attrs["legs_point_to"], attrs["head_faces"]
 
 
 def validate_component_attributes(component_nodes, node_attrs):
@@ -617,11 +615,11 @@ def component_to_sample(
 ):
     component_set = set(component_nodes)
     component_id = component_id_for_component(component_nodes, node_attrs)
-    graph_type, position_type, reading_direction = component_orientation(
+    graph_type, legs_point_to, head_faces = component_orientation(
         component_nodes,
         node_attrs,
     )
-    reading_direction = reverse_reading_direction(reading_direction)
+    head_faces = reverse_head_faces(head_faces)
     validate_component_attributes(component_nodes, node_attrs)
 
     component_edges = [
@@ -653,8 +651,8 @@ def component_to_sample(
         merged_points[merged_id] = transform_point(
             original_x,
             original_y,
-            position_type,
-            reading_direction,
+            legs_point_to,
+            head_faces,
         )
         merged_original_points[merged_id] = (original_x, original_y)
         merged_sequence_positions[merged_id] = merged_sequence_pos(group, node_attrs)
@@ -693,8 +691,8 @@ def component_to_sample(
         original_x, original_y = merged_original_points[node_id]
         transformed_bbox = transform_bbox(
             merged_bboxes[node_id],
-            position_type,
-            reading_direction,
+            legs_point_to,
+            head_faces,
             origin_x,
             origin_y,
         )
